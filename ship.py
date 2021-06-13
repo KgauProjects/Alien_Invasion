@@ -40,5 +40,5 @@ class Ship:
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.ship_speed
 
-        self.rect.x = int(self.x)
+        self.rect.x = self.x
 
