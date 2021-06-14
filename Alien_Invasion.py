@@ -3,6 +3,7 @@ import sys
 from ship import Ship
 from settings import Settings
 from bullet import Bullet
+from alien import Alien
 
 class Alien_Invasion:
     """manages game resources and behaviour of game elements"""
@@ -16,6 +17,9 @@ class Alien_Invasion:
         #create the screen       
         self.settings = Settings()
         self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+        #get the rect of the screen
+        self.screen_rect = self.screen.get_rect()
         
         pygame.display.set_caption('Alien Invasion')
 
@@ -26,6 +30,10 @@ class Alien_Invasion:
         self.bullets = pygame.sprite.Group()
 
         self.bullets_used = 0
+
+        #create a group of aliens
+        self.aliens = pygame.sprite.Group()
+        self.aliens_on_screen = 0
 
     def run_game(self):
         """executes the game"""
@@ -40,6 +48,10 @@ class Alien_Invasion:
             #listens for and responds to keyboard events
             self._check_events()
 
+            self._is_collision()
+
+            self._update_aliens()
+
     def _update_screen(self):
         """refreshes the display"""
 
@@ -49,13 +61,17 @@ class Alien_Invasion:
         #draws the ship onto the screen
         self.ship.blitme()
 
+        self.aliens.draw(self.screen) #draw the aliens onto the screen  
+
         #re-positions the ship (moves the ship)
         self.ship.update_pos()
 
         #draw all the bullets in the group onto the screen
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-    
+
+        #checks if any bullet hits alien
+        
         pygame.display.flip()
 
     def _check_events(self):
@@ -120,6 +136,39 @@ class Alien_Invasion:
         #updates the positions of the bullets in the ship
         for bullet in self.bullets.sprites():
             bullet.update_pos()
+
+    def _update_aliens(self):
+        """manages group of created aliens"""
+        new_alien = Alien(self)
+
+        #ensures that aliens do not ovelap when initialised
+        does_collide = False
+        if len(pygame.sprite.spritecollide(new_alien, self.aliens, False)) > 0:
+            does_collide = True
+
+        for alien in self.aliens.sprites():
+            alien.update_pos()
+
+        #ensures that only a limited number of aliens are on the screen
+        if self.aliens_on_screen < self.settings.aliens_allowed and (not does_collide):
+            new_alien.add(self.aliens)
+            self.aliens_on_screen += 1
+
+        for alien in self.aliens.copy():
+            if alien.rect.top > self.screen_rect.bottom:
+                alien.remove(self.aliens)
+                self.aliens_on_screen -= 1
+
+    def _is_collision(self):
+        """checks if theres a collision between an alien and a bullet"""
+
+        for bullet in self.bullets.copy():
+            if len(pygame.sprite.spritecollide(bullet, self.aliens, True)) > 0:
+                bullet.remove(self.bullets)
+                self.bullets_used -= 1
+                self.aliens_on_screen -= 1
+    
+
 
 if __name__ == '__main__':
     #create an instance of Alien Invasion
