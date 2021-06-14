@@ -1,5 +1,4 @@
 import pygame
-from settings import Settings
 
 class Ship:
     """manages ship attributes and behaviour"""
