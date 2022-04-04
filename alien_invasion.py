@@ -1,3 +1,6 @@
+# alien invasion game using pygame, implementation sourced from 
+# Python Crash Course book
+
 import pygame
 import sys
 from ship import Ship
@@ -8,7 +11,7 @@ from alien import Alien
 class Alien_Invasion:
     """manages game resources and behaviour of game elements"""
 
-    def __init__(self):
+    def __init__(self): #constructor
         """initialises game attributes"""
 
         #initialise pygame
